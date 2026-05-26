@@ -15,10 +15,7 @@ from core.pipeline.question_pipeline import import_questions, search_questions
 @pytest.fixture(autouse=True)
 def patch_chroma_dir(tmp_path, monkeypatch):
     monkeypatch.setattr("config.settings.CHROMA_PERSIST_DIR", str(tmp_path / "chroma"))
-    # 重置 store 单例（如有缓存）
-    import importlib
-    import core.vector_store
-    importlib.reload(core.vector_store)
+    monkeypatch.setattr("core.vector_store.chroma_store.CHROMA_PERSIST_DIR", str(tmp_path / "chroma"))
 
 
 def _make_txt_file(tmp_path: Path, questions: list[str]) -> Path:

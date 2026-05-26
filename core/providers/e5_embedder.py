@@ -1,5 +1,4 @@
 from __future__ import annotations
-import streamlit as st
 from sentence_transformers import SentenceTransformer
 from config.settings import EMBEDDING_MODEL, EMBEDDING_DEVICE, EMBEDDING_BATCH_SIZE
 from core.providers.base_embedder import BaseEmbedder
@@ -11,16 +10,18 @@ class E5Embedder(BaseEmbedder):
     _QUERY_PREFIX = "query: "
     _PASSAGE_PREFIX = "passage: "
     _DIMENSION = 384
+    _instance: "E5Embedder | None" = None
 
     def __init__(self, model: SentenceTransformer):
         self._model = model
 
     @classmethod
-    @st.cache_resource
     def load(cls) -> "E5Embedder":
-        """单例加载，配合 @st.cache_resource 防止重复占用内存。"""
-        model = SentenceTransformer(EMBEDDING_MODEL, device=EMBEDDING_DEVICE)
-        return cls(model)
+        """单例加载，进程内只初始化一次，兼容 pytest 和 Streamlit 环境。"""
+        if cls._instance is None:
+            model = SentenceTransformer(EMBEDDING_MODEL, device=EMBEDDING_DEVICE)
+            cls._instance = cls(model)
+        return cls._instance
 
     def embed_documents(self, texts: list[str]) -> list[list[float]]:
         prefixed = [self._PASSAGE_PREFIX + t for t in texts]

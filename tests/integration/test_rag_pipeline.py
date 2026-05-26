@@ -12,8 +12,7 @@ from core.pipeline.rag_pipeline import import_document, retrieve, get_document_c
 @pytest.fixture(autouse=True)
 def patch_chroma_dir(tmp_path, monkeypatch):
     monkeypatch.setattr("config.settings.CHROMA_PERSIST_DIR", str(tmp_path / "chroma"))
-    import importlib, core.vector_store
-    importlib.reload(core.vector_store)
+    monkeypatch.setattr("core.vector_store.chroma_store.CHROMA_PERSIST_DIR", str(tmp_path / "chroma"))
 
 
 def _make_txt(tmp_path: Path, content: str) -> Path:

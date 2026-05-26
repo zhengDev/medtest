@@ -9,3 +9,4 @@ data/backups/
 *.egg-info/
 .env
 config/secrets.py
+logs/

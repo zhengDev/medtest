@@ -75,12 +75,16 @@ def main():
     results.append(check_ollama())
 
     print("\n" + "=" * 50)
-    if all(results):
-        print("✅ 所有检查通过，可以启动服务")
+    # Ollama 检查（索引 2）失败不阻塞启动，题库模块不依赖 LLM
+    critical = results[:2]
+    if all(critical):
+        print("✅ 核心检查通过，可以启动服务")
+        if not results[2]:
+            print("⚠️  Ollama 未启动，资料问答模块暂不可用（题库检索不受影响）")
         print("   运行：streamlit run app/main.py --server.port 8501 --server.address 0.0.0.0")
         sys.exit(0)
     else:
-        print("❌ 存在未通过的检查项，请修复后再启动")
+        print("❌ 存在未通过的核心检查项，请修复后再启动")
         sys.exit(1)
 
 

@@ -17,7 +17,9 @@ from core.vector_store.base_store import BaseVectorStore, Document, SearchResult
 class ChromaStore(BaseVectorStore):
     """ChromaDB 嵌入式实现，数据持久化到磁盘。使用 0.4.x PersistentClient API。"""
 
-    def __init__(self, collection_name: str, persist_dir: str = CHROMA_PERSIST_DIR):
+    def __init__(self, collection_name: str, persist_dir: str | None = None):
+        if persist_dir is None:
+            persist_dir = CHROMA_PERSIST_DIR  # module global, resolved at call time
         client = chromadb.PersistentClient(path=persist_dir)
         self._collection = client.get_or_create_collection(
             name=collection_name,

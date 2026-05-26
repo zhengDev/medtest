@@ -4,7 +4,7 @@ BASE_DIR = Path(__file__).parent.parent
 
 # ── Embedding ──────────────────────────────────────────────
 EMBEDDING_PROVIDER = "e5"                         # 切换: "e5" | 未来可加 "bge_m3"
-EMBEDDING_MODEL = "microsoft/multilingual-e5-small"
+EMBEDDING_MODEL = "intfloat/multilingual-e5-small"
 EMBEDDING_DEVICE = "cpu"
 EMBEDDING_BATCH_SIZE = 16
 
