@@ -10,14 +10,14 @@ from core.vector_store.base_store import Document
 
 
 @pytest.fixture
-def store(tmp_path, monkeypatch):
-    monkeypatch.setattr("config.settings.CHROMA_PERSIST_DIR", str(tmp_path))
-    return ChromaStore("test_collection")
+def store(tmp_path):
+    return ChromaStore("test_collection", persist_dir=str(tmp_path))
 
 
 def _fake_vector(seed: int, dim: int = 384) -> list[float]:
     import math
-    v = [math.sin(seed * i * 0.1) for i in range(dim)]
+    # seed+1 避免 seed=0 时产生全零向量导致除零
+    v = [math.sin((seed + 1) * (i + 1) * 0.1) for i in range(dim)]
     norm = math.sqrt(sum(x ** 2 for x in v))
     return [x / norm for x in v]
 
