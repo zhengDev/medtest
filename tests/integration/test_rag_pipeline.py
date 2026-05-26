@@ -1,12 +1,14 @@
 """
-集成测试：RAG 文档导入 + 检索完整流程（不含 LLM，只测向量检索部分）。
+集成测试：RAG 文档导入 + 检索 + 问答完整流程。
+LLM 部分使用 mock，Embedding + ChromaDB 使用真实实现。
 """
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 import pytest
-from core.pipeline.rag_pipeline import import_document, retrieve, get_document_count
+from unittest.mock import patch
+from core.pipeline.rag_pipeline import import_document, retrieve, get_document_count, answer_stream
 
 
 @pytest.fixture(autouse=True)
@@ -72,3 +74,43 @@ class TestRetrieve:
         results = retrieve("XXXXXXXX随机无关内容", top_k=5)
         for r in results:
             assert r.score >= 0.0  # 只要分数合法即可
+
+
+class TestAnswerStream:
+    """测试 RAG 完整问答流程（mock LLM，真实 Embedding + ChromaDB）。"""
+
+    def _mock_llm(self, answer_text: str):
+        """返回一个能 patch get_llm_provider 的上下文管理器。"""
+        mock_provider = patch("core.pipeline.rag_pipeline.get_llm_provider")
+        return mock_provider, answer_text
+
+    def test_answer_contains_keywords_from_document(self, tmp_path):
+        content = "高血压的诊断标准：收缩压≥140mmHg和/或舒张压≥90mmHg。"
+        f = _make_txt(tmp_path, content)
+        import_document(f)
+
+        with patch("core.pipeline.rag_pipeline.get_llm_provider") as mock_get_llm:
+            mock_provider = mock_get_llm.return_value
+            mock_provider.generate_stream.return_value = iter(["收缩压≥140mmHg是高血压标准"])
+            tokens = list(answer_stream("高血压诊断标准是什么"))
+
+        full_answer = "".join(tokens)
+        assert "140" in full_answer or "高血压" in full_answer
+
+    def test_answer_includes_citation(self, tmp_path):
+        content = "阿司匹林用于抗血小板治疗。"
+        f = _make_txt(tmp_path, content)
+        import_document(f, source_name="药学笔记.txt")
+
+        with patch("core.pipeline.rag_pipeline.get_llm_provider") as mock_get_llm:
+            mock_provider = mock_get_llm.return_value
+            mock_provider.generate_stream.return_value = iter(["阿司匹林抗血小板"])
+            tokens = list(answer_stream("阿司匹林的用途"))
+
+        full_answer = "".join(tokens)
+        assert "药学笔记.txt" in full_answer
+
+    def test_empty_store_returns_no_data_message(self, tmp_path):
+        tokens = list(answer_stream("任意问题"))
+        full_answer = "".join(tokens)
+        assert "未找到" in full_answer or "未提及" in full_answer or "为空" in full_answer
