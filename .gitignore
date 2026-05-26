@@ -1,0 +1,11 @@
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+data/chroma_db/
+data/uploads/
+data/backups/
+*.egg-info/
+.env
+config/secrets.py
