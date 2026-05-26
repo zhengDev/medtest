@@ -18,8 +18,8 @@
 - LLM Provider 单元测试（mock HTTP）+ RAG 端到端集成测试（40/40 通过）
 - Ollama 性能摸底报告：双模块同时运行内存峰值 2243MB/3594MB，可用余量 1.35GB
 
-## v0.3.0（计划中）
-- systemd 自启服务配置
-- 日志轮转（logrotate）
-- 定期健康检查脚本
-- 数据备份脚本（chroma_db 定时打包）
+## v0.3.0（2026-05-26）
+- systemd 服务：/etc/systemd/system/medtest.service（开机自启，随 ollama.service 一起）
+- 日志轮转：/etc/logrotate.d/medtest（daily，保留 7 天，压缩）
+- 定时备份：cron 每天凌晨 3 点执行 scripts/backup.sh，保留最近 7 份
+- 健康检查：scripts/health_check.py 全部通过（内存 1460MB 可用，Ollama 在线）
