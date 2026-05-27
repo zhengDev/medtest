@@ -18,6 +18,19 @@
 - LLM Provider 单元测试（mock HTTP）+ RAG 端到端集成测试（40/40 通过）
 - Ollama 性能摸底报告：双模块同时运行内存峰值 2243MB/3594MB，可用余量 1.35GB
 
+## v0.4.0（2026-05-27）
+- 题库模块全面重构：语义检索 → 交互式练习系统
+- SQLite 结构化存储（不依赖 ChromaDB / Embedding），无额外内存消耗
+- SmartQuestionParser：正则解析中文试卷（单选/多选/判断/填空/简答），支持 PDF/TXT/CSV/JSON
+- 答案规范化：多选自动排序（BA→AB）、判断转 T/F（√/×/正确/错误）
+- 幂等导入：MD5(stem) 去重，同一题目重复导入自动跳过
+- 4-Tab Streamlit UI：导入试卷 / 题目练习（状态机）/ 题库管理 / 练习记录
+- 练习交互：单选 radio、多选 multiselect、判断双按钮、填空文本框、简答查看答案
+- 练习结束汇总：正确率统计 + 错题复盘
+- 题库管理：按试卷/按分组切换，题目分页浏览，自定义分组增删
+- 练习记录：历史会话列表 + 按题展开错题回顾
+- 新增 23 个单元测试，总测试 63/63 全部通过
+
 ## v0.3.0（2026-05-26）
 - systemd 服务：/etc/systemd/system/medtest.service（开机自启，随 ollama.service 一起）
 - 日志轮转：/etc/logrotate.d/medtest（daily，保留 7 天，压缩）

@@ -43,3 +43,6 @@ UPLOAD_DIR = str(BASE_DIR / "data" / "uploads")
 MAX_UPLOAD_MB = 50
 SUPPORTED_DOC_EXTENSIONS = [".pdf", ".docx", ".txt"]
 SUPPORTED_QUESTION_EXTENSIONS = [".pdf", ".txt", ".csv", ".json"]
+
+# ── Question Bank (SQLite) ───────────────────────────────────
+QUESTION_DB_PATH = str(BASE_DIR / "data" / "question_bank.db")
